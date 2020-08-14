@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>查询所有以员工</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+</head>
+<body>
+<div>
+    <div style="float: left;width: 20%;">
+        <div id="test1"></div>
+    </div>
+    <div style="float: right;width: 80%">
+        <form class="layui-form-item" action="/empController/queryAllEmp.do">
+            <div class="layui-form-item">
+                <label class="layui-form-label">输入框</label>
+                <div class="layui-input-block">
+                    <input type="text" style="width: 150px" name="name" required lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">单选框</label>
+                <div class="layui-input-block">
+                    男<input type="radio" name="sex" value="男" title="男">
+                    女<input type="radio" name="sex" value="女" title="女" checked>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn" lay-event="add">添加</button>
+                <button class="layui-btn " lay-event="deleteAll">删除</button>
+
+            </div>
+        </script>
+
+
+        <script type="text/html" id="toUpdateOrDelete">
+            <div class="layui-btn-group">
+                <button type="button" class="layui-btn layui-btn-sm " lay-event="delete">
+                    <i class="layui-icon">&#xe642;</i>删除
+                </button>
+                <button type="button" class="layui-btn layui-btn-sm" lay-event="update">
+                    <i class="layui-icon">&#xe640;</i>修改
+                </button>
+                <button class="layui-btn layui-btn-sm" lay-event="select">查看</button>
+            </div>
+        </script>
+
+
+        <table id="demo" lay-filter="test"></table>
+    </div>
+</div>
+
+
+
+<script src="/layui/layui.js"></script>
+<script>
+    layui.use(['table','form','layer','jquery','tree'], function(){
+        var table = layui.table;
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        var tree = layui.tree;
+
+        //第一个实例
+        table.render({
+             elem: '#demo'
+            ,toolbar: '#toolbarDemo'
+            ,height: 'auto'
+            ,url: '/empController/queryAllEmp.do' //数据接口
+            ,page:true //开启分页
+            ,limits:[1,3,5,7,10]
+            ,cols: [[ //表头
+                {type:'checkbox'}
+                ,{field: 'id', title: 'ID', width:80, sort: true}
+                ,{field: 'name', title: '用户名', width: 177}
+                ,{field: 'sex', title: '性别', width:80, sort: true}
+                ,{field: 'age', title: '年龄', width:80}
+                ,{field: 'hobby', title: '爱好', width: 177}
+                ,{field: 'picture', templet:function(d){
+                    return'<div><img style="height: 50px;width: 50px" src='+d.picture+'></div>'
+                }, title: '身份证', width: 80, sort: true}
+                ,{field: 'did', title: '部门', width: 80, sort: true}
+                ,{field: 'pid', title: '职位', width: 80}
+                ,{title:'操作',toolbar: '#toUpdateOrDelete',width:180}
+            ]]
+        });
+
+        form.on('submit(formDemo)', function(data){
+            console.log(data.field)
+            table.reload('demo', {//重载表格
+                url:"/empController/queryAllEmp.do"
+                ,where: data.field //设置异步数据接口的额外参数
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+
+
+        //监听行工具栏
+        table.on('tool(test)', function(obj){
+            var layEvent =obj.event;//获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            if(layEvent  === 'delete'){
+                layer.confirm('真的删除行么', function(index){
+                        $.ajax({
+                            type:'GET',
+                            url:'/empController/deleteEmpById.do',
+                            data:{
+                                'id':obj.data.id
+                            },
+                            success:function (data) {
+                                alert(data)
+                                if(data == 'success'){
+                                    layer.closeAll();
+                                    location.reload();//重新加载表格
+                                }
+                            }
+                        })
+                });
+            }else if(layEvent === 'update'){
+                alert("修改");
+                layer.open({
+                    type:2,
+                    content:'/empController/updateEmp.do?id='+obj.data.id,
+                    area:['500px','500px'],
+                    end: function(index, layero){//添加成功后重新加载表格 cancel点叉叉后重新加载
+                        table.reload({
+                            url:"/empController/queryAllEmp.do"
+                        });
+                        return false;
+                    }
+                });
+            }else{
+                alert("添加")
+            }
+        });
+
+
+        //监听头工具栏
+        table.on('toolbar(test)', function(obj){
+            var layEvent =obj.event;//获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            if(layEvent  === 'add'){
+                layer.open({
+                    type:2,
+                    content:'addEmp.html',
+                    area: ['500px', '400px'],
+                    end: function(index, layero){//添加成功后重新加载表格 end关闭页面就会重写加载
+                        table.reload('demo',{
+                            url:"/empController/queryAllEmp.do"
+                        });
+                        return false;
+                    }
+                });
+            }else{
+                alert("进入删除")
+                var checkStatus = table.checkStatus('demo'); //idTest 即为基础参数 id 对应的值  获取选中状态
+                var data=checkStatus.data; //获取选中的行数
+                alert(data);
+                if(data.length==0){
+                    layer.msg("请至少选中一行！");
+                    return false;
+                }else{
+                    alert("删除")
+                        var str="";
+                        for(var i=0; i<data.length; i++){
+                            str = str + "," + checkStatus.data[i].id;
+                        }
+                        $.ajax({
+                            type:'POST',
+                            url:'/empController/deleteAll.do',
+                            data:{
+                                'str':str
+                            },
+                            success:function (data) {
+                                alert(data)
+                                if(data == 'success'){
+                                    location.reload();//重新加载表格
+                                }
+                            }
+                        })
+
+
+
+                }
+            }
+        });
+
+
+            //渲染
+            var inst1 = tree.render({
+                elem: '#test1'  //绑定元素
+                ,data: [{
+                    title: '江西' //一级菜单
+                    ,children: [{
+                        title: '南昌' //二级菜单
+                        ,children: [{
+                            title: '高新区' //三级菜单
+                            //…… //以此类推，可无限层级
+                        }]
+                    }]
+                },{
+                    title: '陕西' //一级菜单
+                    ,children: [{
+                        title: '西安' //二级菜单
+                    }]
+                }]
+            });
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <import resource="classpath:shiro-spring.xml"></import>
+
+    <context:property-placeholder location="classpath:db.properties"></context:property-placeholder>
+    <!--配置数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+
+
+    <!--配置session工厂-->
+    <bean id="SessionFactory" class="com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <!--注入mybatis主配置-->
+        <property name="configLocation" value="classpath:myBatis.xml"></property>
+        <property name="plugins">
+            <array>
+                <!--分页插件-->
+                <bean class="com.baomidou.mybatisplus.plugins.PaginationInterceptor"></bean>
+            </array>
+        </property>
+    </bean>
+
+    <!--全局配置-->
+    <bean class="com.baomidou.mybatisplus.entity.GlobalConfiguration">
+        <property name="idType" value="0"></property>
+    </bean>
+
+    <!--开启mapper扫描-->
+    <bean id="configurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.hy.hy.mapper"></property>
+        <!--注入工厂-->
+        <property name="sqlSessionFactoryBeanName" value="SessionFactory"></property>
+    </bean>
+
+
+    <!--配置事务-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--开启事务注解扫描-->
+    <tx:annotation-driven></tx:annotation-driven>
+
+    <!--开启注解扫描bean-->
+    <context:component-scan base-package="com.hy.hy.services"></context:component-scan>
+</beans>

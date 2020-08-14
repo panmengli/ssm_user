@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--配置开关   日志输出-->
+    <settings>
+        <setting name="logImpl" value="LOG4J"/>
+        <setting name="cacheEnabled" value="true"></setting>
+    </settings>
+
+
+    <!--定义别名-->
+    <typeAliases>
+        <!--<typeAlias type="com.hy.pojo.Student" alias="stu"></typeAlias>-->
+        <!--批量定义别名:
+            自动扫描包中的类，自动定义别名，别名就是类名，首字母大小写都可
+        -->
+        <package name="com.hy.hy.pojo"></package>
+    </typeAliases>
+
+</configuration>

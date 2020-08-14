@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!--suppress ALL-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>修改员工</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+</head>
+<body>
+
+<script src="/layui/layui.js"></script>
+<form class="layui-form" action="/empController/updateEmpToId.do">
+    <input type="hidden" id="id" name="id" th:value="${emp.id}">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" th:value="${emp.name}" style="width: 150px" name="name" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-block">
+            <input type="radio" name="sex" value="男" title="男" th:checked="${emp.sex == '男' ?true:false}">
+            <input type="radio" name="sex" value="女" title="女" th:checked="${emp.sex == '女' ?true:false}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">年龄</label>
+        <div class="layui-input-block">
+            <input type="text" th:value="${emp.age}" style="width: 150px" name="age" required  lay-verify="required" placeholder="请输入年龄" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">爱好</label>
+        <input type='checkbox' name='hobby' value='吃' title='吃'>
+        <input type='checkbox' name='hobby' value='喝' title='喝'>
+        <input type='checkbox' name='hobby' value='玩' title='玩'>
+        <input type='checkbox' name='hobby' value='乐' title='乐'>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">部门</label>
+        <div class="layui-input-block">
+            <select name="did" lay-verify="required">
+                <option value="0">--请选择--</option>
+                <option th:each="dept:${deptList}"
+                        th:value="${dept.did}"
+                        th:selected="${dept.did == emp.did ?true:false}">
+                    [[${dept.dname}]]</option>
+            </select><br>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">职位</label>
+        <div class="layui-input-block" id="pid" name="pid">
+            <input type="checkbox"
+                   th:each="post:${postList}"
+                   th:value="${post.pid}"
+                   th:text="${post.pname}"
+                   th:checked="${post.pid == emp.pid ?true:false}" name="pid">
+        </div>
+    </div>
+
+    <div class="layui-upload">
+        <label class="layui-form-label">身份证</label>
+        <button type="button" class="layui-btn" id="filename">
+            <i class="layui-icon">&#xe67c;</i>上传图片
+        </button>
+        <input type="hidden" name="picture" id="p">
+    </div>
+    <div class="layui-upload">
+        <label class="layui-form-label">身份证预览</label>
+        <div class="layui-upload-list">
+            <img class="layui-upload-img" id="picture" style="width: 100px;height: 100px" th:src="${emp.picture}">
+        </div>
+    </div>
+    <br>
+
+
+    <script>
+        layui.use(['upload','jquery','form'], function(){
+            var upload = layui.upload;
+            var $ = layui.jquery;
+            var form = layui.form;
+
+
+            form.on('submit(formDemo)', function(data){
+                //假设这是iframe页
+                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index); //再执行关闭
+            });
+
+        /*    //执行实例
+            var uploadInst = upload.render({
+                elem: '#test1' //绑定元素
+                ,url: '/upload/' //上传接口
+                ,done: function(res){
+                    //上传完毕回调
+                }
+                ,error: function(){
+                    //请求异常回调
+                }
+            });*/
+
+            //普通图片上传
+            var uploadInst = upload.render({
+                elem: '#filename'
+                ,url: '/empController/pictureUpload.do' //改成您自己的上传接口
+                ,before: function(obj){//展示图片
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function(index, file, result){
+                        $('#picture').attr('src', result); //图片链接（base64）
+                    });
+                }
+                ,done: function(res){
+                    console.log(res)
+                    if(res.code == 0){
+                        $("#p").val(res.data);//获取图片地址赋给p文本框
+                        layer.msg("上传成功");
+                    }
+                }
+            });
+
+        });
+    </script>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    //Demo
+    layui.use('form', function(){
+        var form = layui.form;
+
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+            layer.msg(JSON.stringify(data.field));
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

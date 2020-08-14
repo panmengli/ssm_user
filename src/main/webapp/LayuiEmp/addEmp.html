@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加员工</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+</head>
+<body>
+<!--    location.reload();//页面刷新-->
+
+<script src="/layui/layui.js"></script>
+<form class="layui-form" action="/empController/savaEmp.do">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" style="width: 150px" name="name" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-block">
+            <input type="radio" name="sex" value="男" title="男">
+            <input type="radio" name="sex" value="女" title="女" checked>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">年龄</label>
+        <div class="layui-input-block">
+            <input type="text" style="width: 150px" name="age" required  lay-verify="required" placeholder="请输入年龄" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">爱好</label>
+        <input type='checkbox' name='hobby' value='吃' title='吃'>
+        <input type='checkbox' name='hobby' value='喝' title='喝'>
+        <input type='checkbox' name='hobby' value='玩' title='玩'>
+        <input type='checkbox' name='hobby' value='乐' title='乐'>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">部门</label>
+        <div class="layui-input-block">
+            <select lay-verify="required" style="width: 150px" id="did" name="did">
+                <option value="00" style="width: 150px">请选择</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">职位</label>
+        <div class="layui-input-block" id="pid" name="pid">
+        </div>
+    </div>
+
+    <div class="layui-upload">
+        <label class="layui-form-label">身份证</label>
+        <button type="button" class="layui-btn" id="filename">
+            <i class="layui-icon">&#xe67c;</i>上传图片
+        </button>
+        <input type="hidden" name="picture" id="p">
+    </div>
+    <div class="layui-upload">
+        <label class="layui-form-label">身份证预览</label>
+        <div class="layui-upload-list">
+            <img class="layui-upload-img" id="picture" style="width: 100px;height: 100px">
+        </div>
+    </div>
+    <br>
+
+
+    <script>
+        layui.use(['upload','jquery','form'], function(){
+            var upload = layui.upload;
+            var $ = layui.jquery;
+            var form = layui.form;
+
+
+            form.on('submit(formDemo)', function(data){
+                //假设这是iframe页
+                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index); //再执行关闭
+            });
+
+        /*    //执行实例
+            var uploadInst = upload.render({
+                elem: '#test1' //绑定元素
+                ,url: '/upload/' //上传接口
+                ,done: function(res){
+                    //上传完毕回调
+                }
+                ,error: function(){
+                    //请求异常回调
+                }
+            });*/
+
+            //异步方式获取部门
+            $(function () {
+                $.ajax({
+                    type:'POST',
+                    url:'/deptController/getdept.do',
+                    dataType:'JSON',
+                    success:function (data) {
+                        for (var i = 0; i < data.length; i++) {
+                            $("#did").append(new Option(data[i].dname,data[i].did))
+                        }
+                        form.render();
+                    }
+                })
+            });
+
+            //异步方式获取职位
+            $(function () {
+                $.ajax({
+                    type:'POST',
+                    url:'/postController/getpost.do',
+                    dataType:'JSON',
+                    success:function (data) {
+                        for (var i = 0; i < data.length; i++) {
+                            $("#pid").append("<input type='checkbox' name='pid' value='"+data[i].pid+"' title='"+data[i].pname+"'>")
+                        }
+                        form.render();
+                    }
+                })
+            });
+
+            //普通图片上传
+            var uploadInst = upload.render({
+                elem: '#filename'
+                ,url: '/empController/pictureUpload.do' //改成您自己的上传接口
+                ,before: function(obj){//展示图片
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function(index, file, result){
+                        $('#picture').attr('src', result); //图片链接（base64）
+                    });
+                }
+                ,done: function(res){
+                    console.log(res)
+                    if(res.code == 0){
+                        $("#p").val(res.data);//获取图片地址赋给p文本框
+                        layer.msg("上传成功");
+                    }
+                }
+            });
+
+        });
+    </script>
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    //Demo
+    layui.use('form', function(){
+        var form = layui.form;
+
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+            layer.msg(JSON.stringify(data.field));
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

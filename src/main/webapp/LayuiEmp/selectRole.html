@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>查询所有角色</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+</head>
+<body>
+<script src="/layui/layui.js"></script>
+
+<script type="text/html" id="toUpdateOrDelete">
+    <div class="layui-btn-group">
+        <button type="button" class="layui-btn layui-btn-sm " lay-event="delete">
+            <i class="layui-icon">&#xe640;</i>删除
+        </button>
+        <button type="button" class="layui-btn layui-btn-sm" lay-event="update">
+            <i class="layui-icon">&#xe642;</i>修改
+        </button>
+        <button class="layui-btn layui-btn-sm" lay-event="select">查看</button>
+    </div>
+</script>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn" lay-event="add">添加</button>
+        <button class="layui-btn " lay-event="deleteAll">删除</button>
+
+    </div>
+</script>
+
+<table id="demo" lay-filter="test"></table>
+<script>
+    layui.use(['table','form','layer','jquery','tree'], function(){
+        var table = layui.table;
+
+        //第一个实例
+        table.render({
+             elem: '#demo'
+            ,toolbar: '#toolbarDemo'
+            ,url: '/roleController/queryRole.do' //数据接口
+            ,page:true //开启分页
+            ,limits:[1,3,5,7,10]
+            ,cols: [[ //表头
+                {type:'checkbox'}
+                ,{field: 'id', title: 'ID', width:80, sort: true}
+                ,{field: 'roleName', title: '角色', width: 177}
+                ,{title:'操作',toolbar: '#toUpdateOrDelete',width:180}
+            ]]
+        });
+
+
+
+        //监听头工具栏
+        table.on('toolbar(test)', function(obj){
+            var layEvent =obj.event;//获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            if(layEvent  === 'add'){
+                alert("打开添加！");
+                layer.open({
+                    type:2,
+                    content:'addRole.html',
+                    area: ['500px', '400px'],
+                    end: function(index, layero){//添加成功后重新加载表格 end关闭页面就会重写加载
+                        table.reload('demo',{
+                            url:"/roleController/queryRole.do"
+                        });
+                        return false;
+                    }
+                });
+            }else{
+                alert("进入删除")
+            }
+        });
+
+
+    });
+</script>
+</body>
+</html>

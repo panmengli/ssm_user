@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="realmDemo" class="com.hy.hy.realm.RealmDemo"></bean>
+
+    <!--配置安全管理器-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="realmDemo"></property>
+    </bean>
+
+    <!--shiro的web过滤器-->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"></property>
+        <property name="loginUrl" value="/LayuiEmp/Login.html"></property>
+        <property name="filterChainDefinitions">
+            <value>
+                 /LayuiEmp/Login.html=anon <!-- //表示该url可以匿名访问-->
+               <!-- /LayuiEmp/selectEmp.html=authc &lt;!&ndash; /表示该url必须要通过验证才可以访问&ndash;&gt;
+                /empController/queryAllEmp.do=authc-->
+            </value>
+        </property>
+    </bean>
+
+</beans>

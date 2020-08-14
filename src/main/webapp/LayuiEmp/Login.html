@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>登录</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+</head>
+<body>
+<script src="/layui/layui.js"></script>
+
+<form method="post" action="/userController/queryUser.do">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">输入用户名</label>
+            <div class="layui-input-inline">
+                <input type="tel" id="id" name="id" placeholder="输入id" lay-verify="required|phone" autocomplete="off" class="layui-input">
+            </div>
+        </div><br>
+        <div class="layui-inline">
+            <label class="layui-form-label">输入密码</label>
+            <div class="layui-input-inline">
+                <input type="password" id="password" name="password" placeholder="输入密码" lay-verify="email" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div style="width: 216px; margin: 0;">
+        <button type="submit" class="layui-btn layui-btn-fluid">登录</button>
+    </div>
+</form>
+</body>
+</html>

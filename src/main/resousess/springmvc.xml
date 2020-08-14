@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd">
+
+
+    <!--配置文件上传组件-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize">
+            <!--设置最大上传大小-->
+            <value>1023837</value>
+        </property>
+        <!--在内存中的大小-->
+        <property name="maxInMemorySize">
+            <value>10245</value>
+        </property>
+        <property name="defaultEncoding">
+            <value>utf-8</value>
+        </property>
+    </bean>
+
+    <!--开启注解扫描-->
+    <context:component-scan base-package="com.hy.hy.web"></context:component-scan>
+    <mvc:annotation-driven></mvc:annotation-driven>
+
+    <!--配置模板解析器-->
+    <bean id="templateResolver" class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
+        <property name="characterEncoding" value="utf-8"></property>
+        <!--指定template所在目录-->
+       <!-- <property name="prefix" value="LayuiEmp"></property>-->
+        <!--后缀，过滤请求，以.html结尾的-->
+        <!--是否缓存页面，设置为false，这样就可以在不重启服务器的情况下刷新页面即可看修改效果-->
+        <property name="cacheable" value="false"></property>
+    </bean>
+
+    <!--配置模板引擎-->
+    <bean id="templateEngine" class="org.thymeleaf.spring5.SpringTemplateEngine">
+        <property name="templateResolver" ref="templateResolver"></property>
+    </bean>
+
+    <!--配置视图解析器-->
+    <bean id="thymeleafViewResolver" class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
+        <!--解决中文乱码-->
+        <property name="characterEncoding" value="utf-8"></property>
+        <property name="templateEngine" ref="templateEngine"></property>
+    </bean>
+
+</beans>
